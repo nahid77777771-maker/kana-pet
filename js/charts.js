@@ -113,8 +113,8 @@
         groups[t].forEach(function(item) {
           html += '<div class="chart-cell">';
           html += '<div class="chart-romaji">' + item.romaji + '</div>';
-          html += '<div class="chart-kana jp">' + item.hira + '</div>';
-          html += '<div class="chart-kana jp">' + item.kata + '</div>';
+          html += '<div class="chart-kana jp kana-sound" data-speak="' + item.hira + '" role="button" tabindex="0" aria-label="Hear ' + item.romaji + '">' + item.hira + '</div>';
+          html += '<div class="chart-kana jp kana-sound" data-speak="' + item.kata + '" role="button" tabindex="0" aria-label="Hear ' + item.romaji + '">' + item.kata + '</div>';
           html += '</div>';
         });
         html += '</div></div>';

@@ -71,7 +71,7 @@
           <div class="s"><b id="today-progress">0 / 20</b><span><span data-i18n="dailyGoal">daily<br>goal</span> (<span data-i18n="today">today</span>)</span></div>
         </div>
         <button class="btn btn-primary" id="start-btn" data-i18n="startSession">Start Session</button>
-        <p style="margin-top:14px;font-size:12px" data-i18n="swipeHint">Swipe cards any direction · tap to flip · mic to speak</p>
+        <p style="margin-top:14px;font-size:12px" data-i18n="swipeHint">Swipe cards · tap to flip · tap a letter to hear it</p>
       </div>
 
       <div id="deck-area" class="hidden">
@@ -95,10 +95,6 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               <span data-i18n="missed">Missed</span><span class="lbl" data-i18n="gotWrong">got it wrong</span>
             </button>
-            <button class="mic-btn" id="mic-btn" aria-label="Microphone: speak the reading">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-              <span data-i18n="speak">Speak</span>
-            </button>
             <button class="small-btn good" id="got-it-btn">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               <span data-i18n="gotIt">Got it</span><span class="lbl" data-i18n="knewIt">knew it</span>
@@ -113,7 +109,7 @@
           </div>
         </div>
         <button class="btn btn-primary" id="next-btn" style="width:100%;margin-top:10px;display:none" data-i18n="nextCard">Next card</button>
-        <div class="voice-status" id="voice-status" data-i18n="voiceStatusDefault">Tap mic &amp; say the reading, or self-rate.</div>
+        <div class="voice-status" id="voice-status" data-i18n="tapLetterHint">Tap a letter to hear it · self-rate with the buttons below.</div>
       </div>
 
       <div class="panel hidden" id="summary-panel" style="margin-top:14px">
@@ -212,7 +208,6 @@
       <div class="setting-group">
         <h3 data-i18n="audioFeedback">Audio &amp; feedback</h3>
         <div class="toggle-row"><div><span class="t-label" data-i18n="autoplayAudio">Auto-play audio on reveal</span><span class="t-sub" data-i18n="japaneseTTS">Japanese TTS (ja-JP)</span></div><label class="switch"><input type="checkbox" id="set-autoplay"><span class="slider"></span></label></div>
-        <div class="toggle-row"><div><span class="t-label" data-i18n="voiceRecognition">Voice recognition</span><span class="t-sub" data-i18n="speakReading">Speak the reading (ja-JP)</span></div><label class="switch"><input type="checkbox" id="set-voice"><span class="slider"></span></label></div>
         <div class="toggle-row"><div><span class="t-label" data-i18n="showRomajiLetters">Show romaji (English letters)</span><span class="t-sub" data-i18n="offPracticeHint">Off = practice without seeing readings</span></div><label class="switch"><input type="checkbox" id="set-showromaji" checked><span class="slider"></span></label></div>
         <div class="toggle-row"><div><span class="t-label" data-i18n="autoAdvance">Auto-advance cards</span><span class="t-sub" data-i18n="autoAdvanceHint">Off = answer stays until you tap Next</span></div><label class="switch"><input type="checkbox" id="set-autoadvance" checked><span class="slider"></span></label></div>
         <div class="toggle-row"><div><span class="t-label" data-i18n="soundEffects">Sound effects</span><span class="t-sub" data-i18n="correctWrongChimes">Correct / wrong chimes</span></div><label class="switch"><input type="checkbox" id="set-sound"><span class="slider"></span></label></div>

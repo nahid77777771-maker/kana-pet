@@ -179,16 +179,10 @@ body {
 .learn-controls { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 10px; }
 .lc-row { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; }
 .lc-row .small-btn { flex: 1; max-width: 170px; }
-.mic-btn {
-  width: 76px; height: 76px; border-radius: 50%; border: none; cursor: pointer;
-  background: var(--accent); color: #fff; box-shadow: 0 8px 20px rgba(41,122,46,.35);
-  display: flex; align-items: center; justify-content: center; transition: transform .12s ease;
-  flex-direction: column; font-family: inherit; font-weight: 700; font-size: 11px; gap: 2px;
-  flex: 0 0 auto;
-}
-.mic-btn:active { transform: scale(.94); }
-.mic-btn.listening { background: var(--bad); animation: pulse 1s ease infinite; }
-@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,.5); } 50% { box-shadow: 0 0 0 14px rgba(220,38,38,0); } }
+/* Tappable letter → plays its Japanese pronunciation (TTS). */
+.kana-sound { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.kana-big.kana-sound { transition: transform .1s ease; }
+.kana-big.kana-sound:active { transform: scale(.95); }
 .small-btn {
   min-height: 52px; padding: 10px 16px; border-radius: 16px; border: 1px solid var(--border);
   background: var(--card); font-family: inherit; font-weight: 700; font-size: 14px; cursor: pointer;

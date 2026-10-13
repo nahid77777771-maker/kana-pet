@@ -45,6 +45,9 @@
   font-weight: 700;
 }
 
+.chart-kana.kana-sound { cursor: pointer; border-radius: 8px; padding: 1px 4px; }
+.chart-kana.kana-sound:active { background: var(--accent-soft); transform: scale(.92); }
+
 @media (max-width: 600px) {
   .chart-grid {
     grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));

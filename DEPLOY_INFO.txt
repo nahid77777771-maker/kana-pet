@@ -1,0 +1,63 @@
+KanaPet — Web Deploy Info
+=========================
+Recorded: 2026-10-13
+
+WHAT IS LIVE / DEPLOYED
+-----------------------
+This folder (~/Downloads/kana/web-deploy) is a git repo and is the project
+that is deployed and live right now.
+
+  Live URL   : https://nahid77777771-maker.github.io/kana-pet/
+  Status     : HTTP 200 (live)
+  Live version reported by page: KanaPet v1.18 (footer)
+  (v1.18 = mic/voice-recognition REMOVED + sound on every letter)
+
+GIT DETAILS
+-----------
+  Remote (origin): https://github.com/nahid77777771-maker/kana-pet.git
+  Branch         : main
+  Status         : working tree clean, up to date with origin/main
+  Last commit    : 879754e  "KanaPet web version — initial deploy"
+                   date 2026-10-13 19:50:23 +0600
+  Deploy method  : GitHub Pages (.nojekyll present)
+
+FILES
+-----
+  index.html        <- web landing/version wrapper (== kanapet/www/web-version.html)
+  app-shell.html    <- app shell (== kanapet/www/index.html)
+  css/  js/         <- identical to source
+  .nojekyll         <- disables Jekyll processing (GitHub Pages)
+
+RELATION TO SOURCE
+------------------
+  web-deploy is byte-identical to the app source in:
+     ~/Downloads/kana/project files/kanapet/www/
+  Only the HTML wrapper names differ (index.html/app-shell.html).
+
+WARNING — DEPLOYED WEB LAG (historical, FIXED 2026-10-13 with v1.18)
+---------------------------------------------------
+  This file was first written when the live web (v1.15) was behind the source.
+  The v1.18 deploy fixed that: live web == current source (both APK and web).
+  Source VERSION file   : 1.19 (next APK build)
+  APKs shipped          : up to v1.18
+  Memory / policy docs  : refreshed in the same update (SESSION_MEMORY, policy).
+
+FOLDER LAYOUT NOTE
+------------------
+  ~/Downloads/kana itself is NOT a git repo.
+  The only git repo inside it is this web-deploy folder.
+
+  ~/Downloads/kana/
+  ├── policy.txt
+  ├── project details/      (CHANGE_HISTORY.md, SESSION_MEMORY.md)
+  └── project files/
+      ├── apk/              (KanaPet-v1.7 ... v1.18.apk)
+      └── kanapet/          (app source; VERSION = 1.19)
+  └── web-deploy/           (GIT REPO — deployed & live)
+
+v1.18 CHANGE (2026-10-13)
+  - Mic icon + voice recognition (listening) feature REMOVED.
+  - Sound on every letter: tap a kana / chart tile / review row to hear it
+    (Japanese TTS, ja-JP).
+  - APK index.html and web web-version.html were resynced (identical now).
+  - Details: project details/CHANGE_HISTORY.md, Session 12.

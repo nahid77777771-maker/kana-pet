@@ -11,7 +11,7 @@
       settings: {
         userName: 'Learner', petName: 'Mochi', dailyGoal: 20, sessionSize: 20,
         sets: { hiraganaBasic: true, katakanaBasic: false, hiraganaDakuten: false, katakanaDakuten: false, hiraganaHandakuten: false, katakanaHandakuten: false, yoon: false, n5: false, n4: false, n5read: false },
-        romajiHint: 'on', showRomaji: true, autoAdvance: true, autoplayAudio: true, voiceOn: true, soundOn: true, hapticOn: true
+        romajiHint: 'on', showRomaji: true, autoAdvance: true, autoplayAudio: true, soundOn: true, hapticOn: true
       },
       stats: { xp: 0, level: 1, streak: 0, lastSessionDate: '', totalSessions: 0, totalCorrect: 0, totalAnswered: 0,
                learned: {}, correctStreak: {}, activity: {} },
@@ -61,199 +61,18 @@
     } catch (e) {}
   }
   function vibrate(p) { if (state.settings.hapticOn && navigator.vibrate) { try { navigator.vibrate(p); } catch (e) {} } }
+  // Text-to-speech for pronouncing kana / words (used by the per-letter sound
+  // buttons and by auto-play on reveal). Pure TTS — no microphone / recognition.
   function speakKana(text) {
     try {
-      if (!('speechSynthesis' in window)) return;
+      if (!('speechSynthesis' in window) || !text) return;
       var u = new SpeechSynthesisUtterance(text);
       u.lang = 'ja-JP'; u.rate = 0.85;
       speechSynthesis.cancel();
       speechSynthesis.speak(u);
     } catch (e) {}
   }
-
-  /* ---------------- Voice recognition (3-tier: native Capacitor plugin → Web Speech → self-rated) ---------------- */
-  var WebSR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
-  var recognition = null, listening = false, nativeListener = null, nativeErrListener = null;
-  // Native plugin (works in the APK, and OFFLINE if the Japanese offline voice pack is installed)
-  function nativeSR() {
-    return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SpeechRecognition) || null;
-  }
-  function voiceEngine() {
-    if (!state.settings.voiceOn) return null;
-    if (nativeSR()) return 'native';
-    if (WebSR) return 'web';
-    return null;
-  }
-  function voiceAvailable() { return !!voiceEngine(); }
-
-  function levenshtein(a, b) {
-    var m = a.length, n = b.length, d = [], i, j;
-    if (!m) return n; if (!n) return m;
-    for (i = 0; i <= m; i++) d[i] = [i];
-    for (j = 0; j <= n; j++) d[0][j] = j;
-    for (j = 1; j <= n; j++) for (i = 1; i <= m; i++)
-      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
-    return d[m][n];
-  }
-  function normalize(s) {
-    return (s || '').toLowerCase()
-      .replace(/[ー–—~～\-]/g, '')            // long-vowel marks / dashes recognizers add
-      .replace(/[\s\.\,\!\?\。\、\「\」\『\』\[\]()"]/g, '');
-  }
-  function fuzzyMatch(transcript, entry) {
-    var t = normalize(transcript);
-    if (!t) return false;
-    var expHira = KANA.expectedHira(entry).replace(/ー/g, '');
-    var tHira = KANA.toHiragana(t);
-    // script match (hiragana/katakana recognized, either script)
-    if (tHira === expHira) return true;
-    if (tHira.indexOf(expHira) === 0 && tHira.length <= expHira.length + 2) return true;
-    // multi-character readings may appear inside a longer utterance
-    if (expHira.length >= 2 && tHira.indexOf(expHira) !== -1) return true;
-    // romaji variants with edit-distance tolerance
-    var accepted = entry.accepted.slice();
-    for (var i = 0; i < accepted.length; i++) {
-      var a = accepted[i];
-      if (t === a) return true;
-      if (t.indexOf(a) === 0 || a.indexOf(t) === 0) return true;
-      if (a.length >= 2 && t.length >= 2 && levenshtein(t, a) <= 1) return true;
-    }
-    return false;
-  }
-
-  function stopNativeListeners() {
-    try { if (nativeListener && nativeListener.remove) nativeListener.remove(); } catch (e) {}
-    try { if (nativeErrListener && nativeErrListener.remove) nativeErrListener.remove(); } catch (e) {}
-    nativeListener = null; nativeErrListener = null;
-  }
-  function startListening(entry) {
-    var status = $('#voice-status');
-    var engine = voiceEngine();
-    if (!engine) { status.textContent = 'Voice unavailable — use Got it / Missed below.'; return; }
-    if (listening) { try { stopListening(); } catch (e) {} return; }
-    var mic = $('#mic-btn');
-    listening = true;
-    mic.classList.add('listening');
-    var finished = false;
-    function release() {
-      listening = false; mic.classList.remove('listening');
-      stopNativeListeners();
-    }
-    function finish(ok, heard) {
-      if (finished) return; finished = true;
-      release();
-      if (heard) status.textContent = 'Heard: "' + heard + '" — ' + (ok ? 'Correct!' : 'Not quite.');
-      handleAnswer(ok, !!ok); // voice-correct always auto-advances
-    }
-    function fail(msg) {
-      if (finished) return; finished = true;
-      release();
-      status.textContent = msg;
-    }
-
-    if (engine === 'native') {
-      var NSR = nativeSR();
-      var label = 'say "' + entry.romaji + '"';
-      status.textContent = 'Listening… ' + label;
-      var seen = [];
-      var attempts = 0, maxAttempts = 5;
-      var retryTimer = null;
-      function matchIn(matches) {
-        matches = matches || [];
-        if (matches.length) seen = matches;
-        for (var i = 0; i < matches.length; i++) {
-          if (fuzzyMatch(matches[i], entry)) {
-            try { NSR.stop(); } catch (e) {}
-            finish(true, matches[i]);
-            return true;
-          }
-        }
-        return false;
-      }
-      function startOnce() {
-        if (finished) return;
-        // partialResults:true resolves immediately; results/errors arrive via listeners
-        NSR.start({ language: 'ja-JP', maxResults: 5, popup: false, partialResults: true, preferOffline: true })
-          .catch(function () {});
-      }
-      function onStopped() {
-        if (finished) return;
-        if (retryTimer) clearTimeout(retryTimer);
-        // give the final result a moment to arrive, then decide
-        retryTimer = setTimeout(function () {
-          if (finished) return;
-          if (seen.length) { finish(false, seen[0]); return; }              // heard something else → miss
-          if (attempts < maxAttempts) { attempts++; startOnce(); }          // early end / silence → keep listening
-          else fail('Didn’t hear you — tap the mic and ' + label + ' clearly.');
-        }, 650);
-      }
-      Promise.resolve(NSR.requestPermissions ? NSR.requestPermissions() : {}).then(function (perm) {
-        var p = perm && perm.speechRecognition;
-        if (p && p !== 'granted') { fail('Microphone permission denied — enable it in Settings, or use Got it / Missed.'); return; }
-        NSR.addListener('partialResults', function (d) { matchIn(d && d.matches); }).then(function (h) { nativeListener = h; });
-        NSR.addListener('listeningState', function (st) {
-          if (finished || !st) return;
-          if (st.status === 'started') status.textContent = 'Listening… ' + label;
-          else if (st.status === 'stopped') onStopped();
-        }).then(function (h) { nativeErrListener = h; });
-        attempts = 1;
-        startOnce();
-      }).catch(function (err) {
-        var msg = typeof err === 'string' ? err : (err && err.message) || '';
-        if (/permission/i.test(msg)) fail('Microphone permission denied — use Got it / Missed.');
-        else fail('Voice unavailable (' + (msg || 'unknown') + '). Use Got it / Missed.');
-      });
-      // absolute hard stop
-      setTimeout(function () {
-        if (finished) return;
-        try { NSR.stop(); } catch (e) {}
-        if (seen.length) finish(false, seen[0]);
-        else fail('Didn’t catch that — tap the mic and ' + label + '.');
-      }, 15000);
-      return;
-    }
-
-    // Web Speech API fallback (browser / online)
-    try {
-      recognition = new WebSR();
-      recognition.lang = 'ja-JP';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 5;
-      status.textContent = 'Listening… say the reading aloud!';
-      recognition.onresult = function (e) {
-        var matched = false, heard = [];
-        for (var i = 0; i < e.results[0].length; i++) {
-          var tr = e.results[0][i].transcript;
-          heard.push(tr);
-          if (fuzzyMatch(tr, entry)) matched = true;
-        }
-        finish(matched, heard[0] || '');
-      };
-      recognition.onerror = function (e) {
-        var msg = e.error === 'not-allowed' ? 'Microphone denied — using self-rated buttons.' : 'Voice error (' + e.error + ') — try again or use buttons.';
-        fail(msg);
-        if (e.error === 'not-allowed' || e.error === 'service-not-found') { state.settings.voiceOn = false; save(); renderControls(); }
-      };
-      recognition.onend = function () {
-        listening = false; mic.classList.remove('listening');
-        if (!finished) { status.textContent = 'Didn\'t catch that — try again or use Got it / Missed.'; finished = true; }
-      };
-      recognition.start();
-      setTimeout(function () { if (listening) { try { recognition.stop(); } catch (e) {} } }, 10000);
-    } catch (e) {
-      fail('Voice unavailable — use Got it / Missed below.');
-    }
-  }
-
-  function stopListening() {
-    if (!listening) return;
-    listening = false;
-    var mic = $('#mic-btn'); if (mic) mic.classList.remove('listening');
-    try { if (recognition) recognition.abort(); } catch (e) {}
-    var NSR = nativeSR();
-    try { if (NSR) NSR.stop(); } catch (e) {}
-    stopNativeListeners();
-  }
+  window.speakKana = speakKana; // shared with charts.js / other modules
 
   /* ---------------- Session / deck ---------------- */
   var session = null; // {deck:[entries], correct, total, fromReview, phase:'idle'|'feedback', timers:[]}
@@ -324,14 +143,14 @@
         '<div class="face front">' +
           '<span class="type-tag">' + typeLabel + '</span>' +
           '<span class="group-tag">' + groupLabel + '</span>' +
-          '<p class="kana-big jp" style="font-size:' + fitFront + 'px">' + entry.kana + '</p>' +
+          '<p class="kana-big jp kana-sound" data-speak="' + entry.kana + '" role="button" tabindex="0" aria-label="Hear this letter" style="font-size:' + fitFront + 'px">' + entry.kana + '</p>' +
           '<p class="romaji-hint" style="font-size:' + fitHint + 'px">' + (showHint ? entry.romaji : '&nbsp;') + '</p>' +
           '<span class="tap-hint">Tap card to reveal · swipe to skip</span>' +
           '<button class="speaker-btn" data-speak="' + entry.kana + '" aria-label="Play audio">' + speakerIcon() + '</button>' +
         '</div>' +
         '<div class="face back">' +
           '<span class="type-tag">' + entry.type + '</span>' +
-          '<p class="kana-big jp" style="font-size:' + fitBack + 'px">' + entry.kana + '</p>' +
+          '<p class="kana-big jp kana-sound" data-speak="' + entry.kana + '" role="button" tabindex="0" aria-label="Hear this letter" style="font-size:' + fitBack + 'px">' + entry.kana + '</p>' +
           '<p class="romaji" style="font-size:' + fitRom + 'px"' + romStyle + '>' + entry.romaji + '</p>' +
           (isReading ? '' : '<p class="ex-word jp">' + entry.example.word + '</p>') +
           (isReading ? '' : '<p class="ex-romaji" style="font-size:' + Math.min(fitRom, 14) + 'px"' + romStyle + '>' + entry.example.romaji + '</p>') +
@@ -394,8 +213,6 @@
   function eyeOffIcon() { return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'; }
 
   function renderControls() {
-    var va = voiceAvailable();
-    $('#mic-btn').style.display = va ? '' : 'none';
     var revealed = session && session.phase === 'revealed';
     $('#next-btn').style.display = revealed ? '' : 'none';
     var dim = revealed ? '0.45' : '1';
@@ -404,7 +221,8 @@
     $('#skip-btn').style.opacity = dim;
     var rt = $('#romaji-toggle');
     if (rt) rt.innerHTML = state.settings.showRomaji ? eyeIcon() : eyeOffIcon();
-    $('#voice-status').textContent = va ? 'Tap mic & say the reading, or self-rate below.' : 'Voice off / unavailable — self-rate below.';
+    var vs = $('#voice-status');
+    if (vs) vs.textContent = window.I18n ? window.I18n.t('tapLetterHint') : 'Tap a letter to hear it · self-rate with the buttons below.';
   }
 
   /* ---------------- Answer handling ---------------- */
@@ -549,7 +367,6 @@
     if (!session) return;
     clearSessionTimers();
     if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-    if (listening) stopListening(); // cancel any active voice listening
     session = null;
     $('#stop-modal').classList.remove('show');
     $('#deck-area').classList.add('hidden');
@@ -566,7 +383,7 @@
     var startX = 0, startY = 0, dx = 0, dy = 0, dragging = false, startTime = 0, moved = false;
     c0.addEventListener('pointerdown', function (e) {
       if (!session || session.phase !== 'idle') return;
-      if (e.target.closest('.speaker-btn')) return; // let speaker work
+      if (e.target.closest('[data-speak]')) return; // let letter / speaker sound work (no flip/drag)
       dragging = true; moved = false;
       startX = e.clientX; startY = e.clientY; startTime = performance.now();
       dx = 0; dy = 0;
@@ -617,10 +434,23 @@
     }
     c0.addEventListener('pointerup', end);
     c0.addEventListener('pointercancel', end);
-    // speaker buttons inside cards
-    $('#deck').addEventListener('click', function (e) {
-      var b = e.target.closest('[data-speak]');
-      if (b) { e.stopPropagation(); speakKana(b.getAttribute('data-speak')); beep([600], 0.06); }
+  }
+
+  // Play a letter's sound whenever any element carrying data-speak is tapped
+  // (card kana glyph, speaker button, kana in the charts, review rows, ...).
+  function initLetterSound() {
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('[data-speak]');
+      if (!b) return;
+      e.preventDefault(); e.stopPropagation();
+      speakKana(b.getAttribute('data-speak'));
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var b = e.target.closest && e.target.closest('[data-speak]');
+      if (!b) return;
+      e.preventDefault();
+      speakKana(b.getAttribute('data-speak'));
     });
   }
 
@@ -706,7 +536,7 @@
         r.type === 'reading' ? (window.I18n?window.I18n.t('n5Reading'):'N5 reading') : (window.I18n ? (window.I18n.t(r.type) || r.type) : r.type);
       var row = document.createElement('div');
       row.className = 'error-row';
-      row.innerHTML = '<span class="k jp">' + r.kana + '</span>' +
+      row.innerHTML = '<span class="k jp kana-sound" data-speak="' + r.kana + '" role="button" tabindex="0">' + r.kana + '</span>' +
         '<div class="info"><div class="r">' + r.romaji + '</div>' +
         '<div class="sub">' + tag + ' · ' + time + '</div></div>' +
         '<span class="miss" style="background:' + (r.correct ? 'rgba(22,163,74,.12)' : 'var(--accent2-soft)') + ';color:' + (r.correct ? 'var(--good)' : 'var(--accent2)') + '">' + (r.correct ? 'Got it' : 'Missed') + '</span>';
@@ -739,7 +569,7 @@
       var er = state.errors[k];
       var row = document.createElement('div');
       row.className = 'error-row';
-      row.innerHTML = '<span class="k jp">' + er.kana + '</span>' +
+      row.innerHTML = '<span class="k jp kana-sound" data-speak="' + er.kana + '" role="button" tabindex="0">' + er.kana + '</span>' +
         '<div class="info"><div class="r">' + er.romaji + '</div>' +
         '<div class="sub">' + er.type + ' · ' + er.group + ' · ' + er.correctStreak + '/3 correct streak</div></div>' +
         '<span class="miss">' + er.count + '× missed</span>';
@@ -799,7 +629,6 @@
     $('#set-session-val').textContent = state.settings.sessionSize;
     $('#set-romaji').value = state.settings.romajiHint;
     $('#set-autoplay').checked = state.settings.autoplayAudio;
-    $('#set-voice').checked = state.settings.voiceOn;
     $('#set-showromaji').checked = state.settings.showRomaji;
     $('#set-autoadvance').checked = state.settings.autoAdvance;
     $('#set-sound').checked = state.settings.soundOn;
@@ -819,7 +648,6 @@
     $('#set-session').addEventListener('input', function (e) { state.settings.sessionSize = +e.target.value; $('#set-session-val').textContent = e.target.value; save(); });
     $('#set-romaji').addEventListener('change', function (e) { state.settings.romajiHint = e.target.value; save(); });
     $('#set-autoplay').addEventListener('change', function (e) { state.settings.autoplayAudio = e.target.checked; save(); });
-    $('#set-voice').addEventListener('change', function (e) { state.settings.voiceOn = e.target.checked; save(); renderControls(); });
     $('#set-showromaji').addEventListener('change', function (e) {
       state.settings.showRomaji = e.target.checked; save();
       if (session && session.phase === 'idle') renderDeck();
@@ -912,7 +740,6 @@
     });
     $('#seg-missed').addEventListener('click', function () { reviewView = 'missed'; renderReview(); });
     $('#seg-history').addEventListener('click', function () { reviewView = 'history'; renderReview(); });
-    $('#mic-btn').addEventListener('click', function () { var e = currentEntry(); if (e) startListening(e); });
     $('#got-it-btn').addEventListener('click', function () { handleAnswer(true); });
     $('#missed-btn').addEventListener('click', function () { handleAnswer(false); });
     $('#skip-btn').addEventListener('click', function () { if (session && session.phase === 'idle') { $('#voice-status').textContent = 'Skipped — counted as missed.'; handleAnswer(false); } });
@@ -928,6 +755,7 @@
     });
 
     initSwipe();
+    initLetterSound();
     bindSettings();
     updateXPBar();
     updateBadge();

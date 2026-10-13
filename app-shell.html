@@ -9,64 +9,49 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/charts.css">
+<link rel="stylesheet" href="css/charts.css">
 </head>
 <body>
 <div id="app">
-
-  <!-- Top bar -->
   <div class="topbar">
     <h1>Kana<span class="dot">Pet</span></h1>
     <div class="xp-pill"><span class="lvl">Lv <span id="lvl-num">1</span></span><span id="xp-num">0</span> XP</div>
   </div>
 
   <div class="tab-content">
-
-    <!-- ============ LEARN TAB ============ -->
+    <!-- LEARN TAB -->
     <div class="tab-page active" id="tab-learn">
-
-      <!-- Pet habitat — shown on the Learn tab only (tap the pet for reactions) -->
       <div class="pet-habitat">
         <span class="pet-name-tag">Mochi</span>
-        <span class="pet-tap-hint">tap me!</span>
+        <span class="pet-tap-hint" data-i18n="tapMe">tap me!</span>
         <div class="cloud c1"></div><div class="cloud c2"></div>
         <div class="ground"></div>
-        <!-- Virtual pet: chubby mochi creature, animated SVG (not a photo) -->
         <svg id="pet" viewBox="0 0 100 100" role="button" tabindex="0" aria-label="Virtual pet companion — tap for a reaction">
           <g class="pet-body">
-            <!-- stubby feet -->
             <ellipse cx="38" cy="86" rx="9" ry="5" fill="#f48fb1"/>
             <ellipse cx="62" cy="86" rx="9" ry="5" fill="#f48fb1"/>
-            <!-- chubby round body -->
             <ellipse cx="50" cy="64" rx="27" ry="22" fill="#ffb3c6"/>
             <ellipse cx="50" cy="70" rx="18" ry="13" fill="#ffe0e9"/>
-            <!-- stubby arms -->
             <ellipse cx="24" cy="62" rx="6" ry="9" fill="#ffb3c6"/>
             <ellipse cx="76" cy="62" rx="6" ry="9" fill="#ffb3c6"/>
-            <!-- small head -->
             <circle cx="50" cy="32" r="17" fill="#ffc2d1"/>
-            <!-- ears -->
             <circle cx="37" cy="18" r="5" fill="#ffc2d1"/>
             <circle cx="63" cy="18" r="5" fill="#ffc2d1"/>
             <circle cx="37" cy="18" r="2.5" fill="#ff8fab"/>
             <circle cx="63" cy="18" r="2.5" fill="#ff8fab"/>
-            <!-- scarf (level 5+) -->
             <g id="pet-scarf" style="display:none">
               <rect x="34" y="45" width="32" height="7" rx="3.5" fill="#7cc6f5"/>
               <rect x="58" y="48" width="6" height="14" rx="3" fill="#5fb3e8"/>
             </g>
-            <!-- big cute eyes (blink via transform scaleY) -->
             <g id="pet-eyes" style="transform-origin:50px 32px; transform-box: fill-box;">
               <ellipse cx="43" cy="32" rx="3" ry="4.2" fill="#0f172a"/>
               <ellipse cx="57" cy="32" rx="3" ry="4.2" fill="#0f172a"/>
               <circle cx="44" cy="30.5" r="1.1" fill="#fff"/>
               <circle cx="58" cy="30.5" r="1.1" fill="#fff"/>
             </g>
-            <!-- cheeks + mouth -->
             <circle cx="38" cy="38" r="2.6" fill="#ff8fab" opacity=".6"/>
             <circle cx="62" cy="38" r="2.6" fill="#ff8fab" opacity=".6"/>
             <path d="M46 38 Q50 42 54 38" fill="none" stroke="#0f172a" stroke-width="1.6" stroke-linecap="round"/>
-            <!-- tiny party hat (level 3+) -->
             <g id="pet-hat" style="display:none">
               <polygon points="50,2 42,18 58,18" fill="#d97706"/>
               <circle cx="50" cy="2" r="2.5" fill="#ffd166"/>
@@ -77,27 +62,25 @@
         </svg>
       </div>
 
-      <!-- Start panel -->
       <div class="panel" id="start-panel" style="margin-top:14px">
-        <h2>Ready to learn?</h2>
-        <p><span id="pet-name-start">Mochi</span> is waiting to practice with you!</p>
+        <h2 data-i18n="readyToLearn">Ready to learn?</h2>
+        <p><span id="pet-name-start">Mochi</span> <span data-i18n="waitingPet">is waiting to practice with you!</span></p>
         <div class="stat-row">
-          <div class="s"><b id="pool-count">0</b><span>characters<br>available</span></div>
-          <div class="s"><b id="session-size-info">20</b><span>cards per<br>session</span></div>
-          <div class="s"><b id="today-progress">0 / 20</b><span>daily<br>goal</span></div>
+          <div class="s"><b id="pool-count">0</b><span data-i18n="charactersAvailable">characters<br>available</span></div>
+          <div class="s"><b id="session-size-info">20</b><span data-i18n="cardsPerSession">cards per<br>session</span></div>
+          <div class="s"><b id="today-progress">0 / 20</b><span><span data-i18n="dailyGoal">daily<br>goal</span> (<span data-i18n="today">today</span>)</span></div>
         </div>
-        <button class="btn btn-primary" id="start-btn">Start Session</button>
-        <p style="margin-top:14px;font-size:12px">Swipe cards any direction · tap to flip · mic to speak</p>
+        <button class="btn btn-primary" id="start-btn" data-i18n="startSession">Start Session</button>
+        <p style="margin-top:14px;font-size:12px" data-i18n="swipeHint">Swipe cards · tap to flip · tap a letter to hear it</p>
       </div>
 
-      <!-- Deck area -->
       <div id="deck-area" class="hidden">
         <div class="session-progress">
           <div class="bar"><div id="session-bar" style="width:0%"></div></div>
           <span class="count" id="session-count">0 / 0</span>
           <button class="stop-btn" id="stop-btn" aria-label="Stop session" title="Stop this session">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" stroke="none"/></svg>
-            Stop
+            <span data-i18n="stop">Stop</span>
           </button>
         </div>
         <div class="deck-wrap" id="deck">
@@ -110,206 +93,179 @@
           <div class="lc-row">
             <button class="small-btn bad" id="missed-btn">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              Missed<span class="lbl">got it wrong</span>
-            </button>
-            <button class="mic-btn" id="mic-btn" aria-label="Microphone: speak the reading">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-              Speak
+              <span data-i18n="missed">Missed</span><span class="lbl" data-i18n="gotWrong">got it wrong</span>
             </button>
             <button class="small-btn good" id="got-it-btn">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              Got it<span class="lbl">knew it</span>
+              <span data-i18n="gotIt">Got it</span><span class="lbl" data-i18n="knewIt">knew it</span>
             </button>
           </div>
           <div class="lc-row sub">
             <button class="small-btn" id="skip-btn">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
-              Skip<span class="lbl">I don't know</span>
+              <span data-i18n="skip">Skip</span><span class="lbl" data-i18n="dontKnow">I don't know</span>
             </button>
             <button class="small-btn" id="romaji-toggle" aria-label="Toggle romaji on/off" title="Toggle romaji"></button>
           </div>
         </div>
-        <button class="btn btn-primary" id="next-btn" style="width:100%;margin-top:10px;display:none">Next card</button>
-        <div class="voice-status" id="voice-status">Tap mic &amp; say the reading, or self-rate.</div>
+        <button class="btn btn-primary" id="next-btn" style="width:100%;margin-top:10px;display:none" data-i18n="nextCard">Next card</button>
+        <div class="voice-status" id="voice-status" data-i18n="tapLetterHint">Tap a letter to hear it · self-rate with the buttons below.</div>
       </div>
 
-      <!-- Summary panel -->
       <div class="panel hidden" id="summary-panel" style="margin-top:14px">
-        <h2>Session complete!</h2>
-        <p id="sum-msg">Great job!</p>
+        <h2 data-i18n="sessionComplete">Session complete!</h2>
+        <p id="sum-msg" data-i18n="greatJob">Great job!</p>
         <div class="stat-row">
-          <div class="s"><b id="sum-accuracy">0%</b><span>accuracy</span></div>
-          <div class="s"><b id="sum-correct">0/0</b><span>correct</span></div>
-          <div class="s"><b id="sum-mistakes">0</b><span>mistakes</span></div>
+          <div class="s"><b id="sum-accuracy">0%</b><span data-i18n="accuracy">accuracy</span></div>
+          <div class="s"><b id="sum-correct">0/0</b><span data-i18n="correct">correct</span></div>
+          <div class="s"><b id="sum-mistakes">0</b><span data-i18n="mistakes">mistakes</span></div>
         </div>
-        <button class="btn btn-primary" id="again-btn">Practice Again</button>
+        <button class="btn btn-primary" id="again-btn" data-i18n="practiceAgain">Practice Again</button>
       </div>
     </div>
 
-    <!-- ============ REVIEW TAB ============ -->
+    <!-- REVIEW TAB -->
     <div class="tab-page" id="tab-review">
       <div class="review-head">
-        <h2>Missed Characters</h2>
-        <button class="btn btn-secondary" id="practice-missed-btn" style="padding:10px 16px;min-height:44px;font-size:14px">Practice Missed Only</button>
+        <h2 data-i18n="missedChars">Missed Characters</h2>
+        <button class="btn btn-secondary" id="practice-missed-btn" style="padding:10px 16px;min-height:44px;font-size:14px" data-i18n="practiceMissedOnly">Practice Missed Only</button>
       </div>
       <div class="seg-control">
-        <button class="seg active" id="seg-missed">Missed</button>
-        <button class="seg" id="seg-history">History</button>
+        <button class="seg active" id="seg-missed" data-i18n="missedSeg">Missed</button>
+        <button class="seg" id="seg-history" data-i18n="historySeg">History</button>
       </div>
       <div class="error-list" id="error-list"></div>
       <div class="error-list" id="history-list" style="display:none"></div>
     </div>
 
-    <!-- ============ PROGRESS TAB ============ -->
+    <!-- PROGRESS TAB -->
     <div class="tab-page" id="tab-progress">
       <div class="kpi-grid">
-        <div class="kpi"><b id="stat-streak">0</b><span>day streak</span></div>
-        <div class="kpi"><b id="stat-sessions">0</b><span>sessions</span></div>
-        <div class="kpi"><b id="stat-learned">0</b><span>characters learned</span></div>
-        <div class="kpi"><b id="stat-accuracy">—</b><span>overall accuracy</span></div>
+        <div class="kpi"><b id="stat-streak">0</b><span data-i18n="dayStreak">day streak</span></div>
+        <div class="kpi"><b id="stat-sessions">0</b><span data-i18n="sessions">sessions</span></div>
+        <div class="kpi"><b id="stat-learned">0</b><span data-i18n="charactersLearned">characters learned</span></div>
+        <div class="kpi"><b id="stat-accuracy">—</b><span data-i18n="overallAccuracy">overall accuracy</span></div>
       </div>
-      <div class="section-title">Mastery by set</div>
+      <div class="section-title" data-i18n="masteryBySet">Mastery by set</div>
       <div class="mastery">
-        <div class="row"><span class="name">Hiragana</span><div class="track" id="mastery-hira"><div style="width:0%"></div></div><span class="pct">0%</span></div>
-        <div class="row"><span class="name">Katakana</span><div class="track" id="mastery-kata"><div style="width:0%"></div></div><span class="pct">0%</span></div>
-        <div class="row"><span class="name">Hiragana ten-ten</span><div class="track" id="mastery-hiradaku"><div style="width:0%"></div></div><span class="pct">0%</span></div>
-        <div class="row"><span class="name">Katakana ten-ten</span><div class="track" id="mastery-katadaku"><div style="width:0%"></div></div><span class="pct">0%</span></div>
-        <div class="row"><span class="name">Hiragana maru</span><div class="track" id="mastery-hirahand"><div style="width:0%"></div></div><span class="pct">0%</span></div>
-        <div class="row"><span class="name">Katakana maru</span><div class="track" id="mastery-katahand"><div style="width:0%"></div></div><span class="pct">0%</span></div>
+        <div class="row"><span class="name" data-i18n="hiragana">Hiragana</span><div class="track" id="mastery-hira"><div style="width:0%"></div></div><span class="pct">0%</span></div>
+        <div class="row"><span class="name" data-i18n="katakana">Katakana</span><div class="track" id="mastery-kata"><div style="width:0%"></div></div><span class="pct">0%</span></div>
+        <div class="row"><span class="name" data-i18n="hiraganaDakuten">Hiragana ten-ten</span><div class="track" id="mastery-hiradaku"><div style="width:0%"></div></div><span class="pct">0%</span></div>
+        <div class="row"><span class="name" data-i18n="katakanaDakuten">Katakana ten-ten</span><div class="track" id="mastery-katadaku"><div style="width:0%"></div></div><span class="pct">0%</span></div>
+        <div class="row"><span class="name" data-i18n="hiraganaMaru">Hiragana maru</span><div class="track" id="mastery-hirahand"><div style="width:0%"></div></div><span class="pct">0%</span></div>
+        <div class="row"><span class="name" data-i18n="katakanaMaru">Katakana maru</span><div class="track" id="mastery-katahand"><div style="width:0%"></div></div><span class="pct">0%</span></div>
       </div>
-      <div class="section-title">Last 30 days</div>
+      <div class="section-title" data-i18n="last30Days">Last 30 days</div>
       <div class="heatmap" id="heatmap"></div>
-      <div class="heatmap-legend"><span>Less</span><span class="sw" style="background:var(--border)"></span><span class="sw l1" style="background:rgba(41,122,46,.25)"></span><span class="sw l2" style="background:rgba(41,122,46,.5)"></span><span class="sw l3" style="background:rgba(41,122,46,.75)"></span><span class="sw l4" style="background:var(--accent)"></span><span>More</span></div>
+      <div class="heatmap-legend"><span data-i18n="less">Less</span><span class="sw" style="background:var(--border)"></span><span class="sw l1" style="background:rgba(41,122,46,.25)"></span><span class="sw l2" style="background:rgba(41,122,46,.5)"></span><span class="sw l3" style="background:rgba(41,122,46,.75)"></span><span class="sw l4" style="background:var(--accent)"></span><span data-i18n="more">More</span></div>
     </div>
 
-    <!-- ============ PROFILE / SETTINGS TAB ============ -->
+    <!-- PROFILE TAB -->
     <div class="tab-page" id="tab-profile">
       <div class="setting-group">
-        <h3>Profile</h3>
-        <div class="field"><label>Your name</label><input type="text" id="set-username" maxlength="20"></div>
-        <div class="field"><label>Pet's name</label><input type="text" id="set-petname" maxlength="20"></div>
-      </div>
-
-      <div class="setting-group">
-        <h3>Character sets</h3>
-        <div class="chip-row" style="margin-bottom:10px">
-          <button class="chip" data-set="hiraganaBasic">Hiragana basic</button>
-          <button class="chip" data-set="katakanaBasic">Katakana basic</button>
-          <button class="chip" data-set="hiraganaDakuten">Hiragana ten-ten (゛)</button>
-          <button class="chip" data-set="katakanaDakuten">Katakana ten-ten (゛)</button>
-          <button class="chip" data-set="hiraganaHandakuten">Hiragana maru (゜)</button>
-          <button class="chip" data-set="katakanaHandakuten">Katakana maru (゜)</button>
-          <button class="chip" data-set="yoon">Yōon (advanced)</button>
-          <button class="chip" data-set="n5">JLPT N5 vocab</button>
-          <button class="chip" data-set="n4">JLPT N4 vocab</button>
-          <button class="chip" data-set="n5read">N5 reading (kana)</button>
-        </div>
-        <button class="btn btn-secondary" id="mix-all" style="width:100%;min-height:44px">Mix all sets</button>
-      </div>
-
-      <div class="setting-group">
-        <h3>Session &amp; goals</h3>
-        <div class="field"><label>Daily goal <span class="val" id="set-daily-val">20</span></label><input type="range" id="set-daily" min="10" max="100" step="5"></div>
-        <div class="field"><label>Cards per session <span class="val" id="set-session-val">20</span></label><input type="range" id="set-session" min="10" max="100" step="5"></div>
-        <div class="field"><label>Romaji hint on card front</label>
-          <select class="setting-select" id="set-romaji">
-            <option value="on">Always show</option>
-            <option value="off">Always hide</option>
-            <option value="auto">Auto-hide after 3 correct</option>
+        <h3 data-i18n="profile">Profile</h3>
+        <div class="field"><label data-i18n="yourName">Your name</label><input type="text" id="set-username" maxlength="20"></div>
+        <div class="field"><label data-i18n="petName">Pet's name</label><input type="text" id="set-petname" maxlength="20"></div>
+        <div class="field"><label data-i18n="language">Language</label>
+          <select class="setting-select" id="set-language">
+            <option value="en" data-i18n="english">English</option>
+            <option value="bn" data-i18n="bangla">বাংলা</option>
           </select>
         </div>
       </div>
 
       <div class="setting-group">
-        <h3>Audio &amp; feedback</h3>
-        <div class="toggle-row"><div><span class="t-label">Auto-play audio on reveal</span><span class="t-sub">Japanese TTS (ja-JP)</span></div><label class="switch"><input type="checkbox" id="set-autoplay"><span class="slider"></span></label></div>
-        <div class="toggle-row"><div><span class="t-label">Voice recognition</span><span class="t-sub">Speak the reading (ja-JP)</span></div><label class="switch"><input type="checkbox" id="set-voice"><span class="slider"></span></label></div>
-        <div class="toggle-row"><div><span class="t-label">Show romaji (English letters)</span><span class="t-sub">Off = practice without seeing readings</span></div><label class="switch"><input type="checkbox" id="set-showromaji" checked><span class="slider"></span></label></div>
-        <div class="toggle-row"><div><span class="t-label">Auto-advance cards</span><span class="t-sub">Off = answer stays until you tap Next</span></div><label class="switch"><input type="checkbox" id="set-autoadvance" checked><span class="slider"></span></label></div>
-        <div class="toggle-row"><div><span class="t-label">Sound effects</span><span class="t-sub">Correct / wrong chimes</span></div><label class="switch"><input type="checkbox" id="set-sound"><span class="slider"></span></label></div>
-        <div class="toggle-row"><div><span class="t-label">Haptic feedback</span><span class="t-sub">Vibrate on answer</span></div><label class="switch"><input type="checkbox" id="set-haptic"><span class="slider"></span></label></div>
+        <h3 data-i18n="characterSets">Character sets</h3>
+        <div class="chip-row" style="margin-bottom:10px">
+          <button class="chip" data-set="hiraganaBasic" data-i18n="hiraganaBasic">Hiragana basic</button>
+          <button class="chip" data-set="katakanaBasic" data-i18n="katakanaBasic">Katakana basic</button>
+          <button class="chip" data-set="hiraganaDakuten" data-i18n="hiraganaDakuten">Hiragana ten-ten (゛)</button>
+          <button class="chip" data-set="katakanaDakuten" data-i18n="katakanaDakuten">Katakana ten-ten (゛)</button>
+          <button class="chip" data-set="hiraganaHandakuten" data-i18n="hiraganaMaru">Hiragana maru (゜)</button>
+          <button class="chip" data-set="katakanaHandakuten" data-i18n="katakanaMaru">Katakana maru (゜)</button>
+          <button class="chip" data-set="yoon" data-i18n="yoon">Yōon (advanced)</button>
+          <button class="chip" data-set="n5" data-i18n="n5Vocab">JLPT N5 vocab</button>
+          <button class="chip" data-set="n4" data-i18n="n4Vocab">JLPT N4 vocab</button>
+          <button class="chip" data-set="n5read" data-i18n="n5Reading">N5 reading (kana)</button>
+        </div>
+        <button class="btn btn-secondary" id="view-charts" style="width:100%;min-height:44px;margin-bottom:8px" data-i18n="viewAllKana">View all Hiragana & Katakana</button>
+        <button class="btn btn-secondary" id="mix-all" style="width:100%;min-height:44px" data-i18n="mixAllSets">Mix all sets</button>
       </div>
 
       <div class="setting-group">
-        <h3>Danger zone</h3>
-        <button class="btn btn-warn" id="reset-btn" style="width:100%">Reset all progress</button>
+        <h3 data-i18n="sessionGoals">Session &amp; goals</h3>
+        <div class="field"><label><span data-i18n="dailyGoalSetting">Daily goal</span> <span class="val" id="set-daily-val">20</span></label><input type="range" id="set-daily" min="10" max="100" step="5"></div>
+        <div class="field"><label><span data-i18n="cardsPerSessionSetting">Cards per session</span> <span class="val" id="set-session-val">20</span></label><input type="range" id="set-session" min="10" max="100" step="5"></div>
+        <div class="field"><label data-i18n="romajiHintFront">Romaji hint on card front</label>
+          <select class="setting-select" id="set-romaji">
+            <option value="on" data-i18n="alwaysShow">Always show</option>
+            <option value="off" data-i18n="alwaysHide">Always hide</option>
+            <option value="auto" data-i18n="autoHide">Auto-hide after 3 correct</option>
+          </select>
+        </div>
       </div>
-      <p style="text-align:center;color:var(--muted);font-size:12px">KanaPet v1.0 · works offline · data stored on device</p>
+
+      <div class="setting-group">
+        <h3 data-i18n="audioFeedback">Audio &amp; feedback</h3>
+        <div class="toggle-row"><div><span class="t-label" data-i18n="autoplayAudio">Auto-play audio on reveal</span><span class="t-sub" data-i18n="japaneseTTS">Japanese TTS (ja-JP)</span></div><label class="switch"><input type="checkbox" id="set-autoplay"><span class="slider"></span></label></div>
+        <div class="toggle-row"><div><span class="t-label" data-i18n="showRomajiLetters">Show romaji (English letters)</span><span class="t-sub" data-i18n="offPracticeHint">Off = practice without seeing readings</span></div><label class="switch"><input type="checkbox" id="set-showromaji" checked><span class="slider"></span></label></div>
+        <div class="toggle-row"><div><span class="t-label" data-i18n="autoAdvance">Auto-advance cards</span><span class="t-sub" data-i18n="autoAdvanceHint">Off = answer stays until you tap Next</span></div><label class="switch"><input type="checkbox" id="set-autoadvance" checked><span class="slider"></span></label></div>
+        <div class="toggle-row"><div><span class="t-label" data-i18n="soundEffects">Sound effects</span><span class="t-sub" data-i18n="correctWrongChimes">Correct / wrong chimes</span></div><label class="switch"><input type="checkbox" id="set-sound"><span class="slider"></span></label></div>
+        <div class="toggle-row"><div><span class="t-label" data-i18n="hapticFeedback">Haptic feedback</span><span class="t-sub" data-i18n="vibrateOnAnswer">Vibrate on answer</span></div><label class="switch"><input type="checkbox" id="set-haptic"><span class="slider"></span></label></div>
+      </div>
+
+      <div class="setting-group">
+        <h3 data-i18n="dangerZone">Danger zone</h3>
+        <button class="btn btn-warn" id="reset-btn" style="width:100%" data-i18n="resetAllProgress">Reset all progress</button>
+      </div>
+      <p style="text-align:center;color:var(--muted);font-size:12px" data-i18n="kanaPetVersion">KanaPet v1.15 · works offline · data stored on device</p>
     </div>
   </div>
 
   <div class="screen-flash" id="screen-flash"></div>
-
-  <!-- Bottom tab bar -->
   <nav class="tabbar">
-    <button data-tab="learn" class="active">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      Learn
-    </button>
-    <button data-tab="review">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      Review<span class="badge" id="review-badge" style="display:none">0</span>
-    </button>
-    <button data-tab="progress">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      Progress
-    </button>
-    <button data-tab="profile">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      Profile
-    </button>
+    <button data-tab="learn" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span data-i18n="learnTab">Learn</span></button>
+    <button data-tab="review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span data-i18n="reviewTab">Review</span><span class="badge" id="review-badge" style="display:none">0</span></button>
+    <button data-tab="progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span data-i18n="progressTab">Progress</span></button>
+    <button data-tab="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span data-i18n="profileTab">Profile</span></button>
   </nav>
 
   <canvas id="confetti"></canvas>
   <div class="toast" id="toast"></div>
 
-  <!-- Stop session confirmation modal -->
   <div class="modal-mask" id="stop-modal">
     <div class="modal">
-      <h3>Stop this session?</h3>
-      <p>You'll return to the start screen so you can pick a different set or chapter. Cards you already answered are kept.</p>
-      <button class="btn btn-secondary" id="stop-cancel">Keep going</button>
-      <button class="btn btn-warn" id="stop-confirm">Stop session</button>
+      <h3 data-i18n="stopSession">Stop this session?</h3>
+      <p data-i18n="stopSessionMsg">You'll return to the start screen so you can pick a different set or chapter. Cards you already answered are kept.</p>
+      <button class="btn btn-secondary" id="stop-cancel" data-i18n="keepGoing">Keep going</button>
+      <button class="btn btn-warn" id="stop-confirm" data-i18n="stop">Stop session</button>
     </div>
   </div>
 
-  <!-- Reset confirmation modal -->
   <div class="modal-mask" id="reset-modal">
     <div class="modal">
-      <h3>Reset all progress?</h3>
-      <p>This erases XP, streaks, mastery, and your missed-character list. This cannot be undone.</p>
-      <button class="btn btn-secondary" id="reset-cancel">Cancel</button>
-      <button class="btn btn-warn" id="reset-confirm">Reset everything</button>
+      <h3 data-i18n="resetProgress">Reset all progress?</h3>
+      <p data-i18n="resetProgressMsg">This erases XP, streaks, mastery, and your missed-character list. This cannot be undone.</p>
+      <button class="btn btn-secondary" id="reset-cancel" data-i18n="cancel">Cancel</button>
+      <button class="btn btn-warn" id="reset-confirm" data-i18n="resetEverything">Reset everything</button>
     </div>
   </div>
 </div>
 
-<script src="js/n5words.js"></script>
-<script src="js/data.js"></script>
-<script src="js/pet.js"></script>
-<script src="js/translations_bn.js"></script>
-<script src="js/app.js"></script>
-</body>
-</html>
-
-<!-- Onboarding Modal (Language selection on first install) -->
+<!-- Onboarding -->
 <div class="modal-mask" id="onboard-modal">
   <div class="modal">
     <h3 data-i18n="selectLanguage">Select Language</h3>
     <p data-i18n="chooseLanguage">Choose which language you're comfortable with</p>
     <div style="display:flex;flex-direction:column;gap:10px;margin:20px 0">
-      <button class="btn btn-secondary lang-select" data-lang="en" style="width:100%">
-        <span data-i18n="englishFull">English</span>
-      </button>
-      <button class="btn btn-secondary lang-select" data-lang="bn" style="width:100%">
-        <span data-i18n="banglaFull">বাংলা (Bangla)</span>
-      </button>
+      <button class="btn btn-secondary lang-select" data-lang="en" style="width:100%"><span data-i18n="englishFull">English</span></button>
+      <button class="btn btn-secondary lang-select" data-lang="bn" style="width:100%"><span data-i18n="banglaFull">বাংলা (Bangla)</span></button>
     </div>
     <button class="btn btn-primary" id="onboard-start" style="width:100%" disabled data-i18n="getStarted">Get Started</button>
   </div>
 </div>
 
-<!-- Kana Charts Modal -->
+<!-- Charts -->
 <div class="modal-mask" id="charts-modal">
   <div class="modal modal-large">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px">
@@ -332,3 +288,14 @@
     <div id="charts-container" style="max-height:70vh;overflow-y:auto;padding:10px 0"></div>
   </div>
 </div>
+
+<script src="js/n5words.js"></script>
+<script src="js/data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/pet.js"></script>
+<script src="js/app.js"></script>
+<script src="js/translations_bn.js"></script>
+<script src="js/onboard.js"></script>
+</body>
+</html>
