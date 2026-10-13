@@ -66,15 +66,19 @@ git add -A && git commit -m "Web deploy vX.Y" && git push origin main
 # GitHub Pages updates automatically (may take ~1 min).
 ```
 
-## 6. Version state (UPDATED with v1.18 deploy — all in sync)
+## 6. Version state (UPDATED with v1.19 deploy — all in sync)
 | Where | Version |
 |---|---|
-| Source `project files/kanapet/VERSION` | **1.19** (next APK build) |
-| APKs shipped (`project files/apk/`) | up to **v1.18** |
-| Live web page (i18n.js) | **v1.18** (footer, en+bn) |
-| Capacitor shell footer | v1.18 (now from i18n.js, same as web) |
-- **v1.18 = mic/voice-recognition REMOVED + sound on every letter added.**
-  APK `index.html` and web `web-version.html` are now identical except title+viewport.
+| Source `project files/kanapet/VERSION` | **1.20** (next APK build) |
+| APKs shipped (`project files/apk/`) | up to **v1.19** (also on GitHub Release) |
+| Live web page (i18n.js) | **v1.19** (footer, en+bn) |
+| Capacitor shell footer | v1.19 (now from i18n.js, same as web) |
+- **v1.18** = mic/voice-recognition REMOVED + sound on every letter (TTS).
+- **v1.19** = BUILT-IN OFFLINE VOICE PACK: every kana + N5 reading word has a
+  bundled mp3 in `www/audio/<hash>.mp3` (1003 clips, ~7 MB). Speaker button /
+  tap-on-letter plays the local clip; device TTS only as fallback. Generator:
+  `tools/gen_voicepack.js`, and its `hashKey()` MUST match `app.js`.
+- Download APK: `https://github.com/nahid77777771-maker/kana-pet/releases/latest/download/KanaPet.apk`
 - Web version string is in `www/js/i18n.js` `kanaPetVersion` (en + bn).
 
 ## 7. App architecture (what lives where) — source in `project files/kanapet/www`
@@ -125,7 +129,8 @@ source env.sh          # ANDROID_HOME=~/Android/Sdk, JAVA_HOME=/usr/lib/jvm/java
 | v1.15 | i18n (en/bn) + onboarding + kana charts + web deploy |
 | v1.16–v1.17 | incremental fixes |
 | v1.18 | **REMOVED mic/voice recognition; sound on every letter; HTML resynced** |
-| v1.19 | (next / pending) |
+| v1.19 | **BUILT-IN VOICE PACK: 1003 offline clips (every kana + reading word); web Download-APK link; skip-btn bugfix; GitHub Release** |
+| v1.20 | (next / pending) |
 
 ## 10. Gotchas
 - `git clone github.com` and `git ls-remote` HANG on this machine. `git push`

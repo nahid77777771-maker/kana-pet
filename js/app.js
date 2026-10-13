@@ -61,9 +61,23 @@
     } catch (e) {}
   }
   function vibrate(p) { if (state.settings.hapticOn && navigator.vibrate) { try { navigator.vibrate(p); } catch (e) {} } }
-  // Text-to-speech for pronouncing kana / words (used by the per-letter sound
-  // buttons and by auto-play on reveal). Pure TTS — no microphone / recognition.
-  function speakKana(text) {
+  // --- Pronunciation ------------------------------------------------------
+  // Primary: a built-in OFFLINE voice pack (www/audio/<hash>.mp3), one clip per
+  // kana / word, generated at build time by tools/gen_voicepack.js. Fallback:
+  // the device's own Japanese text-to-speech if a clip is missing or unplayable.
+  // No microphone / speech recognition anywhere.
+  //
+  // stable string hash — MUST match tools/gen_voicepack.js hashKey()
+  function hashKey(s) {
+    var h = 2166136261 >>> 0;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+    h = (h ^ Math.imul(s.length, 2654435761)) >>> 0;
+    return h.toString(16);
+  }
+  var voiceFailed = {}; // src -> true once we know the clip is missing/broken
+  var voiceAudio = null; // keep a reference so playback isn't garbage-collected
+
+  function ttsFallback(text) {
     try {
       if (!('speechSynthesis' in window) || !text) return;
       var u = new SpeechSynthesisUtterance(text);
@@ -72,7 +86,41 @@
       speechSynthesis.speak(u);
     } catch (e) {}
   }
+
+  function speakKana(text) {
+    if (!text) return;
+    var src = 'audio/' + hashKey(text) + '.mp3';
+    if (voiceFailed[src]) { ttsFallback(text); return; }
+    try {
+      var a = new Audio(src);
+      a.preload = 'auto';
+      voiceAudio = a;
+      a.onerror = function () { voiceFailed[src] = true; ttsFallback(text); };
+      var p = a.play();
+      if (p && p.catch) p.catch(function (err) {
+        // Autoplay-blocked before any user gesture is NOT a broken clip.
+        if (err && err.name === 'NotAllowedError') return;
+        voiceFailed[src] = true; ttsFallback(text);
+      });
+    } catch (e) { ttsFallback(text); }
+  }
   window.speakKana = speakKana; // shared with charts.js / other modules
+  window.pronounce = speakKana;
+
+  // On the web build only (not inside the Capacitor APK), add a link so
+  // anyone can grab the standalone offline Android app.
+  function addWebDownloadLink() {
+    try {
+      if (window.Capacitor) return;
+      var link = document.createElement('a');
+      link.href = 'https://github.com/nahid77777771-maker/kana-pet/releases/latest/download/KanaPet.apk';
+      link.target = '_blank'; link.rel = 'noopener';
+      link.style.cssText = 'display:inline-block;margin:10px auto;padding:9px 18px;border:1.5px solid currentColor;border-radius:10px;color:var(--accent,#4a90d9);text-decoration:none;font-size:13px;font-weight:600';
+      link.textContent = 'Download Android app (APK) - works offline';
+      var v = document.querySelector('[data-i18n="kanaPetVersion"]');
+      if (v && v.parentNode) v.parentNode.insertBefore(link, v.nextSibling);
+    } catch (e) {}
+  }
 
   /* ---------------- Session / deck ---------------- */
   var session = null; // {deck:[entries], correct, total, fromReview, phase:'idle'|'feedback', timers:[]}
@@ -221,8 +269,6 @@
     $('#skip-btn').style.opacity = dim;
     var rt = $('#romaji-toggle');
     if (rt) rt.innerHTML = state.settings.showRomaji ? eyeIcon() : eyeOffIcon();
-    var vs = $('#voice-status');
-    if (vs) vs.textContent = window.I18n ? window.I18n.t('tapLetterHint') : 'Tap a letter to hear it · self-rate with the buttons below.';
   }
 
   /* ---------------- Answer handling ---------------- */
@@ -742,7 +788,7 @@
     $('#seg-history').addEventListener('click', function () { reviewView = 'history'; renderReview(); });
     $('#got-it-btn').addEventListener('click', function () { handleAnswer(true); });
     $('#missed-btn').addEventListener('click', function () { handleAnswer(false); });
-    $('#skip-btn').addEventListener('click', function () { if (session && session.phase === 'idle') { $('#voice-status').textContent = 'Skipped — counted as missed.'; handleAnswer(false); } });
+    $('#skip-btn').addEventListener('click', function () { if (session && session.phase === 'idle') { handleAnswer(false); } });
     $('#stop-btn').addEventListener('click', function () { if (session) $('#stop-modal').classList.add('show'); });
     $('#stop-cancel').addEventListener('click', function () { $('#stop-modal').classList.remove('show'); });
     $('#stop-confirm').addEventListener('click', stopSession);
@@ -756,6 +802,7 @@
 
     initSwipe();
     initLetterSound();
+    addWebDownloadLink();
     bindSettings();
     updateXPBar();
     updateBadge();

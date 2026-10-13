@@ -9,8 +9,12 @@ that is deployed and live right now.
 
   Live URL   : https://nahid77777771-maker.github.io/kana-pet/
   Status     : HTTP 200 (live)
-  Live version reported by page: KanaPet v1.18 (footer)
-  (v1.18 = mic/voice-recognition REMOVED + sound on every letter)
+  Live version reported by page: KanaPet v1.19 (footer)
+  v1.19 = BUILT-IN OFFLINE VOICE PACK (every kana/word speaks from bundled
+          audio; speaker button on cards; TTS only as fallback) +
+          web "Download Android app (APK)" link.
+  Download APK: https://github.com/nahid77777771-maker/kana-pet/releases/latest/download/KanaPet.apk
+  (GitHub Release asset, always points to newest build)
 
 GIT DETAILS
 -----------
@@ -38,8 +42,8 @@ WARNING — DEPLOYED WEB LAG (historical, FIXED 2026-10-13 with v1.18)
 ---------------------------------------------------
   This file was first written when the live web (v1.15) was behind the source.
   The v1.18 deploy fixed that: live web == current source (both APK and web).
-  Source VERSION file   : 1.19 (next APK build)
-  APKs shipped          : up to v1.18
+  Source VERSION file   : 1.20 (next APK build)
+  APKs shipped          : up to v1.19
   Memory / policy docs  : refreshed in the same update (SESSION_MEMORY, policy).
 
 FOLDER LAYOUT NOTE
@@ -51,8 +55,8 @@ FOLDER LAYOUT NOTE
   ├── policy.txt
   ├── project details/      (CHANGE_HISTORY.md, SESSION_MEMORY.md)
   └── project files/
-      ├── apk/              (KanaPet-v1.7 ... v1.18.apk)
-      └── kanapet/          (app source; VERSION = 1.19)
+      ├── apk/              (KanaPet-v1.7 ... v1.18, v1.19)
+      └── kanapet/          (app source; VERSION = 1.20)
   └── web-deploy/           (GIT REPO — deployed & live)
 
 v1.18 CHANGE (2026-10-13)
@@ -61,3 +65,15 @@ v1.18 CHANGE (2026-10-13)
     (Japanese TTS, ja-JP).
   - APK index.html and web web-version.html were resynced (identical now).
   - Details: project details/CHANGE_HISTORY.md, Session 12.
+
+v1.19 CHANGE (2026-10-13)
+  - BUILT-IN VOICE PACK: 1003 audio clips (www/audio/<hash>.mp3) bundled
+    inside the app for EVERY kana card + N5 reading word. Speaker button /
+    tap-on-letter now plays the local clip — works fully OFFLINE with zero
+    downloads and no OS Japanese voice needed. Device TTS is only a fallback
+    if a clip is missing.
+  - Web page footer gets a "Download Android app (APK)" link that points to
+    the GitHub Release (latest asset).
+  - Generator tool: project files/kanapet/tools/gen_voicepack.js (regenerate
+    with `node tools/gen_voicepack.js`; hash MUST match hashKey() in app.js).
+  - Fixed latent bug: Skip button refs a removed #voice-status element.
